@@ -62,7 +62,7 @@ FROM
 REMOVAL_RATE = '''
 SELECT *
 FROM
-    (SELECT A.ATA, OPERATORS.OPERATOR_NAME, Case when B.FLIGHT_HOURS=0 THEN null else 1000*A.REMOVAL_NUMBER/B.FLIGHT_HOURS end as removal_rate
+    (SELECT REPLACE(A.ATA, '.0', '') AS ATA, OPERATORS.OPERATOR_NAME, Case when B.FLIGHT_HOURS=0 THEN null else 1000*A.REMOVAL_NUMBER/B.FLIGHT_HOURS end as removal_rate
     FROM
         (SELECT RV.OPERATOR_CODE, count(RV.REMOVED_PART_SERIAL_NO) AS REMOVAL_NUMBER, RV.ATA_REPORTED AS ATA
         FROM
@@ -72,7 +72,7 @@ FROM
             RV.AC_MODEL IN {2}
         GROUP BY RV.OPERATOR_CODE, 
         RV.ATA_REPORTED
-) A JOIN
+) A RIGHT JOIN
         (SELECT SUM(AU.FLIGHT_HOURS_MONTH) AS FLIGHT_HOURS, AU.OPERATOR_CODE
         FROM MAIN_AIRCRAFT_MONTHLY_UTILIZATION AU
         WHERE AU.AU_DATE BETWEEN '{0}' AND '{1}'
@@ -100,5 +100,6 @@ FROM
     [PSA Airlines],
     [Rwandair Express],
     [Skywest],
-    [Xfly (formerly Regional Jet OU)])) AS PT;
+    [Xfly (formerly Regional Jet OU)])) AS PT
+    order by [IBEX Airlines] desc;
 '''

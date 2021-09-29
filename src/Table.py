@@ -79,6 +79,7 @@ class Table:
                 for k, v in grouping_dict.items():
                     reorganize_columns += v
                 self.value_table = self.value_table[reorganize_columns]
+                self.ATA_table = self.ATA_table[reorganize_columns]
                 self.value_table.columns = pd.MultiIndex. \
                     from_tuples([(data[col], col) for col in self.value_table.columns])
 
