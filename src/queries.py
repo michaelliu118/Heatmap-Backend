@@ -58,3 +58,47 @@ FROM
         MAIN_OPERATORS OPERATORS
     WHERE FI.OPERATOR_CODE=OPERATORS.OPERATOR_CODE) A LEFT JOIN
     MAIN_COUNTRIES COUNTRIES ON A.COUNTRY_CODE=COUNTRIES.COUNTRY_CODE;'''
+
+REMOVAL_RATE = '''
+SELECT *
+FROM
+    (SELECT A.ATA, OPERATORS.OPERATOR_NAME, Case when B.FLIGHT_HOURS=0 THEN null else 1000*A.REMOVAL_NUMBER/B.FLIGHT_HOURS end as removal_rate
+    FROM
+        (SELECT RV.OPERATOR_CODE, count(RV.REMOVED_PART_SERIAL_NO) AS REMOVAL_NUMBER, RV.ATA_REPORTED AS ATA
+        FROM
+            MAIN_COMPONENT_REMOVALS RV
+        WHERE RV.CR_DATE BETWEEN '{0}' AND '{1}' AND 
+            RV.ATA_REPORTED IS NOT NULL AND
+            RV.AC_MODEL IN {2}
+        GROUP BY RV.OPERATOR_CODE, 
+        RV.ATA_REPORTED
+) A JOIN
+        (SELECT SUM(AU.FLIGHT_HOURS_MONTH) AS FLIGHT_HOURS, AU.OPERATOR_CODE
+        FROM MAIN_AIRCRAFT_MONTHLY_UTILIZATION AU
+        WHERE AU.AU_DATE BETWEEN '{0}' AND '{1}'
+        GROUP BY AU.OPERATOR_CODE
+) B
+        ON A.OPERATOR_CODE=B.OPERATOR_CODE
+        LEFT JOIN
+        MAIN_OPERATORS OPERATORS
+        ON OPERATORS.OPERATOR_CODE=B.OPERATOR_CODE
+    ) AS C
+    PIVOT( SUM(removal_rate) FOR OPERATOR_NAME IN (
+    [Air Nostrum],
+    [Air Wisconsin],
+    [China Express Airlines],
+    [CityJet],
+    [Endeavor Air],
+    [Garuda Indonesia],
+    [GoJet Airlines],
+    [IBEX Airlines],
+    [IrAero],
+    [Jazz Aviation],
+    [Lufthansa CityLine],
+    [Melair],
+    [Mesa Airlines],
+    [PSA Airlines],
+    [Rwandair Express],
+    [Skywest],
+    [Xfly (formerly Regional Jet OU)])) AS PT;
+'''

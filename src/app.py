@@ -14,7 +14,7 @@ CORS(app)
 number_of_rows_heatmap = 20
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(async_job, "interval", seconds=20, args=[['DIR'], number_of_rows_heatmap])
+scheduler.add_job(async_job, "interval", seconds=20, args=[['DIR', 'REMOVAL_RATE'], number_of_rows_heatmap])
 scheduler.add_job(async_get_regions, "interval", seconds=20)
 scheduler.start()
 
@@ -33,7 +33,6 @@ def App():
     else:
         # read data from POST request
         data = request.form.to_dict()
-
 
         # prepare each parameter to be put into sql query
         metric = data['metric']

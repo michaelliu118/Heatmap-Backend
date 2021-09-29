@@ -7,7 +7,6 @@ import json
 
 plt.switch_backend('agg')
 
-
 class Table:
 
     def __init__(self, azure_db_engine=None):
@@ -31,8 +30,6 @@ class Table:
             return self.original_table
         except ValueError:
             raise Exception('Invalid query or engine!')
-        # self.original_table = pd.read_csv(r'C:\Users\LiyangLiu\Downloads\export.csv', index_col=0)
-        # self.original_table.fillna(0, inplace=True)
 
     # for each operator, select only the K number of ATA metric
     def select_top_K_number_for_each_operator(self, K):
@@ -116,7 +113,7 @@ class Table:
                 html_string = html_string[:forward + 1] + \
                               str(self.ATA_table.iloc[current_row, current_column]) + \
                               html_string[start:]
-                start += 5
+                start += 10
             # print(html_string)
 
             return html_string
