@@ -35,7 +35,7 @@ def async_job(array_of_all_metrics, k):
 
         # get the query from queries module
         query = getattr(queries, metric)
-        query = query.format(date_lower_boundary, date_upper_boundary, "('CRJ700')")
+        query = query.format(date_lower_boundary, date_upper_boundary, 'CRJ700', '')
 
         theMetric.query_table(query)
         theMetric.select_top_K_number_for_each_operator(k)
@@ -68,12 +68,10 @@ if __name__ == "__main__":
     currentYear = datetime.now().year
     date_lower_boundary = str(currentYear - 1) + '-01-01'
     date_upper_boundary = str(currentYear) + '-01-01'
-    query = getattr(queries, 'REMOVAL_RATE')
-    query = query.format(date_lower_boundary, date_upper_boundary,"('CRJ700')")
+    query = getattr(queries, 'DIR')
+    query = query.format(date_lower_boundary, date_upper_boundary, 'CRJ700', '')
     table = Table(engine_azure)
     df = table.query_table(query)
-    # print(df.to_string())
     table.select_top_K_number_for_each_operator(20)
     html = table.generate_heatmap_html()
-    print(table.ATA_table.to_string())
     print(html)

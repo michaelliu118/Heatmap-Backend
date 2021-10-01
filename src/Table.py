@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import io
@@ -25,7 +26,8 @@ class Table:
 
         try:
             self.original_table = pd.read_sql(query, self.engine, index_col='ATA')
-            self.original_table.fillna(0, inplace=True)
+            # uniform the null values to np.NAN
+            self.original_table.fillna(np.NAN, inplace=True)
             self.calling_method_sequence_identifier = 1
             return self.original_table
         except ValueError:
@@ -46,8 +48,12 @@ class Table:
             # At this stage the index of original table should be ATA
             for col in self.original_table.columns:
                 dummy = self.original_table[col].sort_values(ascending=False).reset_index()
+
+                # reflect null in values to ATA index in dummy
+                dummy['ATA'] = dummy.apply(lambda x: 'null' if np.isnan(x[col]) else x['ATA'], axis=1)
+
                 # add the ATA number to ATA table
-                self.ATA_table[col] = dummy.ATA
+                self.ATA_table[col] = dummy['ATA']
 
                 # add the corresponding value to value table
                 self.value_table[col] = dummy[col]
@@ -55,6 +61,8 @@ class Table:
             # Keep only the requested K number of rows
             self.ATA_table.drop(self.ATA_table.index[K + 1:], inplace=True)
             self.value_table.drop(self.value_table.index[K + 1:], inplace=True)
+            self.value_table.fillna(0, inplace=True)
+
         else:
             raise Exception('Please pass a SQL query to "query_table')
 
@@ -75,11 +83,16 @@ class Table:
                         grouping_dict['unknown'] = grouping_dict.get('unknown', []) + [col]
                         data[col] = "unknown"
 
+                # Construct the array of new sequence of columns
                 reorganize_columns = []
                 for k, v in grouping_dict.items():
                     reorganize_columns += v
+
+                # re-organize column sequence for both tables
                 self.value_table = self.value_table[reorganize_columns]
                 self.ATA_table = self.ATA_table[reorganize_columns]
+
+                # Add the region as the second column layer
                 self.value_table.columns = pd.MultiIndex. \
                     from_tuples([(data[col], col) for col in self.value_table.columns])
 
@@ -132,7 +145,8 @@ class Table:
 
             # construct the colorBar
             colorBar = pd.DataFrame([[i for i in range(11)]])
-            colorBar.columns = [str(round(minMetric + interval * i, 3)) for i in range(0, 11)]
+            colorBar.columns = [str(round(minMetric + interval * i, 2)) for i in range(0, 11)]
+
             # plot the heatmap on dataframe
             sns.heatmap(colorBar, cmap='PuBu', cbar=False, square=True)
 

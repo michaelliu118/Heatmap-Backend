@@ -36,9 +36,9 @@ def App():
 
         # prepare each parameter to be put into sql query
         metric = data['metric']
-        aircraft_model = '(' + str(data['ac_model'].split(','))[1:-1] +')'
-        if len(aircraft_model)==4:
-            aircraft_model = "('CRJ700')"
+        aircraft_model = data['ac_model'].split(',')
+        if len(aircraft_model)==1:
+            aircraft_model.append('')
 
         upper_year_boundary = str(data['year'])
         upper_month_boundary = str(data['month'])
@@ -51,7 +51,7 @@ def App():
 
         # getting the query
         query = getattr(queries, metric)
-        query = query.format(date_lower_boundary, date_upper_boundary, aircraft_model)
+        query = query.format(date_lower_boundary, date_upper_boundary, aircraft_model[0], aircraft_model[1])
 
         # create Table instance to query data and generate heatmap
         table = Table(engine_azure)
