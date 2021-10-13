@@ -14,8 +14,8 @@ CORS(app)
 number_of_rows_heatmap = 20
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(async_job, "interval", seconds=20, args=[['DIR', 'REMOVAL_RATE'], number_of_rows_heatmap])
-scheduler.add_job(async_get_regions, "interval", seconds=20)
+scheduler.add_job(async_job, "interval", seconds=30, args=[['DIR', 'REMOVAL_RATE'], number_of_rows_heatmap])
+scheduler.add_job(async_get_regions, "interval", seconds=30)
 scheduler.start()
 
 
