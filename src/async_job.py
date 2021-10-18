@@ -35,7 +35,7 @@ def async_job(array_of_all_metrics, k):
 
         # get the query from queries module
         query = getattr(queries, metric)
-        query = query.format(date_lower_boundary, date_upper_boundary, 'CRJ700', '')
+        query = query.format(date_lower_boundary, date_upper_boundary, 'CRJ700', '', '')
 
         theMetric.query_table(query)
         theMetric.select_top_K_number_for_each_operator(k)

@@ -5,6 +5,7 @@ from flask import Flask, request, make_response
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask_cors import CORS
 import json
+import datetime
 
 
 # Initiate the Flask
@@ -14,8 +15,8 @@ CORS(app)
 number_of_rows_heatmap = 20
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(async_job, "interval", seconds=30, args=[['DIR', 'REMOVAL_RATE'], number_of_rows_heatmap])
-scheduler.add_job(async_get_regions, "interval", seconds=30)
+scheduler.add_job(async_job, "interval", days=7, args=[['DIR', 'REMOVAL_RATE'], number_of_rows_heatmap], next_run_time=datetime.datetime.now())
+scheduler.add_job(async_get_regions, "interval", days=7, next_run_time=datetime.datetime.now())
 scheduler.start()
 
 
@@ -37,7 +38,8 @@ def App():
         # prepare each parameter to be put into sql query
         metric = data['metric']
         aircraft_model = data['ac_model'].split(',')
-        if len(aircraft_model)==1:
+        # adding placeholder in models list
+        for _ in range(len(aircraft_model), 3):
             aircraft_model.append('')
 
         upper_year_boundary = str(data['year'])
@@ -51,7 +53,7 @@ def App():
 
         # getting the query
         query = getattr(queries, metric)
-        query = query.format(date_lower_boundary, date_upper_boundary, aircraft_model[0], aircraft_model[1])
+        query = query.format(date_lower_boundary, date_upper_boundary, aircraft_model[0], aircraft_model[1], aircraft_model[2])
 
         # create Table instance to query data and generate heatmap
         table = Table(engine_azure)

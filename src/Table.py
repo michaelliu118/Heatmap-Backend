@@ -18,8 +18,8 @@ class Table:
             self.original_table = None
             self.calling_method_sequence_identifier = 0
             self.K = None
-            self.ATA_table = pd.DataFrame()
-            self.value_table = pd.DataFrame()
+            self.ATA_table = None
+            self.value_table = None
 
     # Get the table by passing a sql query and return a pandas dataframe with fillna(0)
     def query_table(self, query):
@@ -40,10 +40,10 @@ class Table:
             self.calling_method_sequence_identifier = 2
 
             # construct a dataframe storing ATA number
-            self.ATA_table.index = [i for i in range(len(self.original_table.index))]
+            self.ATA_table = pd.DataFrame(index=[i for i in range(len(self.original_table.index))])
 
             # construct a dataframe storing metric values
-            self.value_table.index = [i for i in range(len(self.original_table.index))]
+            self.value_table = pd.DataFrame(index=[i for i in range(len(self.original_table.index))])
 
             # At this stage the index of original table should be ATA
             for col in self.original_table.columns:
