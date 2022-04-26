@@ -5,21 +5,22 @@ import matplotlib.pyplot as plt
 import io
 import base64
 import json
+import re
 
 plt.switch_backend('agg')
 
+
 class Table:
 
-    def __init__(self, azure_db_engine=None):
-        if not azure_db_engine:
-            raise Exception('Initiate this class with an Azure database engine!')
-        else:
-            self.engine = azure_db_engine
-            self.original_table = None
-            self.calling_method_sequence_identifier = 0
-            self.K = None
-            self.ATA_table = None
-            self.value_table = None
+    def __init__(self):
+        self.original_table = pd.read_excel(r"C:\Users\LiyangLiu\Downloads\Delays All (4).xlsx", header=0)
+        self.original_table['ATA'] = self.original_table['ATA'].apply(lambda x: re.match("^[0-9]*", x).group(0))
+        self.original_table.set_index('ATA', inplace=True)
+        self.original_table.fillna(np.NaN, inplace=True)
+        self.calling_method_sequence_identifier = 1
+        self.K = None
+        self.ATA_table = None
+        self.value_table = None
 
     # Get the table by passing a sql query and return a pandas dataframe with fillna(0)
     def query_table(self, query):
@@ -106,7 +107,7 @@ class Table:
                                                                              ('border-width', '1px'),
                                                                              ('border-color', '#2b6f8a'),
                                                                              ('text-align', 'center')]}])
-            
+
             # Get the html string of heatmap table
             html_string = styler.render()
             row_length = len(self.value_table.columns)
@@ -159,3 +160,9 @@ class Table:
             return heatmap_src
         else:
             raise Exception('Please call method "select_top_K_number_for_each_operator" first!')
+
+t = Table()
+t.select_top_K_number_for_each_operator(20)
+html = t.generate_heatmap_html()
+print(html)
+print(t.generate_heatmap_colorBar_image_encode())

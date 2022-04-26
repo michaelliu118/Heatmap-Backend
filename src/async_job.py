@@ -69,7 +69,7 @@ if __name__ == "__main__":
     date_lower_boundary = str(currentYear - 1) + '-01-01'
     date_upper_boundary = str(currentYear) + '-01-01'
     query = getattr(queries, 'DIR')
-    query = query.format(date_lower_boundary, date_upper_boundary, 'CRJ700', '')
+    query = query.format(date_lower_boundary, date_upper_boundary, 'CRJ700', '','')
     table = Table(engine_azure)
     df = table.query_table(query)
     table.select_top_K_number_for_each_operator(20)
